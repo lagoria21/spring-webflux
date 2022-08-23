@@ -2,7 +2,7 @@ package com.regulus.client.controller;
 
 import com.regulus.client.dto.Product;
 import com.regulus.client.dto.ProductRequestAdd;
-import com.regulus.client.service.IProductService;
+import com.regulus.client.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,15 +23,15 @@ import static org.springframework.web.reactive.function.BodyInserters.fromObject
 public class ProductHandler {
 
     @Autowired
-    private IProductService productService;
+    private ProductService productService;
 
-    public Mono<ServerResponse> findAll(ServerRequest serverRequest) {
+    public Mono<ServerResponse> getAllProduct() {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(productService.findAll(), Product.class);
     }
 
 
-    public Mono<ServerResponse> findById(ServerRequest request) {
+    public Mono<ServerResponse> getProductById(ServerRequest request) {
         String id = request.pathVariable("id");
         return productService.findById(id).flatMap(productResponse ->
                 ServerResponse.accepted()
@@ -53,7 +53,7 @@ public class ProductHandler {
     }
 
 
-    public Mono<ServerResponse> delete(ServerRequest request) {
+    public Mono<ServerResponse> removeProduct(ServerRequest request) {
         String id = request.pathVariable("id");
         return productService.findById(id).flatMap(productResponse -> productService.delete(productResponse.getId()).then(ServerResponse.noContent().build()))
                 .switchIfEmpty(ServerResponse.notFound().build())
@@ -67,7 +67,7 @@ public class ProductHandler {
                 ;
     }
 
-    public Mono<ServerResponse> add(ServerRequest request){
+    public Mono<ServerResponse> saveProduct(ServerRequest request){
         Mono<ProductRequestAdd> productRequestAddMono = request.bodyToMono(ProductRequestAdd.class);
         return productRequestAddMono.flatMap(product -> productService.save(product))
                 .flatMap(p -> ServerResponse.created(URI.create("/api/v2/product/".concat(p.getId())))

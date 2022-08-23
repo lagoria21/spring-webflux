@@ -12,9 +12,8 @@ public class RouterConfig {
 
     @Bean
     public RouterFunction<ServerResponse> routes(ProductHandler productHandler){
-        return RouterFunctions.route(RequestPredicates.GET("/api/client"), productHandler::findAll)
-                .andRoute(RequestPredicates.GET("/api/client/{id}"), productHandler::findById)
-                .andRoute(RequestPredicates.POST("/api/client/add"), request -> productHandler.add(request))
-                ;
+        return RouterFunctions.route(RequestPredicates.GET("/api/client"), request -> productHandler.getAllProduct())
+                .andRoute(RequestPredicates.GET("/api/client/{id}"), productHandler::getProductById)
+                .andRoute(RequestPredicates.POST("/api/client/add"), productHandler::saveProduct);
     }
 }

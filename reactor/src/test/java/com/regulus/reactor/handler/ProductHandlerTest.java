@@ -1,18 +1,15 @@
 package com.regulus.reactor.handler;
 
+import com.regulus.reactor.documents.Category;
 import com.regulus.reactor.documents.Product;
 import com.regulus.reactor.dto.ProductResponse;
-import com.regulus.reactor.service.ProductService;
+import com.regulus.reactor.service.impl.ProductServiceImpl;
 import org.assertj.core.api.Assertions;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -23,14 +20,15 @@ import java.util.List;
 
 @AutoConfigureWebTestClient
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ProductHandlerTest {
     @Autowired
     private WebTestClient webTestClient;
 
     //@MockBean
     @Autowired
-    private ProductService productService;
+    private ProductServiceImpl productServiceImpl;
 
     @Test
     public void findAllTestOk() {
@@ -40,7 +38,7 @@ public class ProductHandlerTest {
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBodyList(ProductResponse.class)
-                .hasSize(3);
+                .hasSize(10);
     }
 
     @Test
@@ -56,14 +54,14 @@ public class ProductHandlerTest {
                     productResponses.forEach(productResponse -> {
                         System.out.println(productResponse.getName());
                     });
-                    Assertions.assertThat(productResponses.size() == 3).isTrue();
+                    Assertions.assertThat(productResponses.size() == 10).isTrue();
                 });
     }
 
     @Test
     public void saveTest() {
 
-        Product product = Product.builder().name("beto").price(20.0).build();
+        Product product = Product.builder().name("beto").price(20.0).category(Category.builder().name("electronico").build()).build();
 
         webTestClient.post().uri("/api/v2/product/add")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -79,7 +77,7 @@ public class ProductHandlerTest {
     @Test
     public void deleteTest() {
 
-        Product product = productService.findByName("Sony").block();
+        Product product = productServiceImpl.findByName("Sony Camara HD Digital").block();
 
         webTestClient.delete()
                 .uri("/api/v2/product/{id}", Collections.singletonMap("id", product.getId()))

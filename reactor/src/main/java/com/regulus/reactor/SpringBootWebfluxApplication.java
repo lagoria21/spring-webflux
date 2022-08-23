@@ -3,7 +3,7 @@ package com.regulus.reactor;
 import com.regulus.reactor.documents.Category;
 import com.regulus.reactor.documents.Product;
 import com.regulus.reactor.repository.ProductRepository;
-import com.regulus.reactor.service.CategoryService;
+import com.regulus.reactor.service.impl.CategoryServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -22,7 +22,7 @@ public class SpringBootWebfluxApplication implements CommandLineRunner {
 	private ProductRepository productRepository;
 
 	@Autowired
-	private CategoryService categoryService;
+	private CategoryServiceImpl categoryServiceImpl;
 
 	@Autowired
 	ReactiveMongoTemplate reactiveMongoTemplate;
@@ -43,7 +43,7 @@ public class SpringBootWebfluxApplication implements CommandLineRunner {
 		Category muebles = Category.builder().name("Muebles").build();
 
 		Flux.just(electronico, deporte, computacion, muebles)
-				.flatMap(category -> categoryService.saveCategory(category))
+				.flatMap(category -> categoryServiceImpl.saveCategory(category))
 				.doOnNext(c ->{
 					log.info("Categoria creada: " + c.getName() + ", Id: " + c.getId());
 				}).thenMany(
@@ -64,18 +64,5 @@ public class SpringBootWebfluxApplication implements CommandLineRunner {
 								})
 				)
 				.subscribe(producto -> log.info("Insert: " + producto.getId() + " " + producto.getName()));
-
-		/*Category electronic = Category.builder().name("Electronico").build();
-		Category sport = Category.builder().name("Deporte").build();
-
-		Flux.just(electronic,sport).flatMap(category -> categoryService.saveCategory(category))
-						.thenMany(
-								Flux.just(Product.builder().name("Sony").price(20.00).build(),
-										Product.builder().name("Nike").price(30.00).build())
-								.flatMap(product -> {
-									product.setCreateAt(new Date());
-									return productRepository.save(product);
-								})
-						).subscribe(product -> log.info(String.valueOf(product))); */
 		}
 }

@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
-public class ProductRequestAdd {
+public class CategoryRequest {
 
     private String name;
-    private Double price;
 }

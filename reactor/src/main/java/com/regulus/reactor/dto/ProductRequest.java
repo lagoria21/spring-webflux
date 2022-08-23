@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
-public class ProductRequestUpdate {
+public class ProductRequest {
 
     private String name;
     private Double price;
+    private CategoryRequest category;
 
 }

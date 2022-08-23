@@ -1,7 +1,6 @@
 package com.regulus.reactor.controller;
 
-import com.regulus.reactor.dto.ProductRequestAdd;
-import com.regulus.reactor.dto.ProductRequestUpdate;
+import com.regulus.reactor.dto.ProductRequest;
 import com.regulus.reactor.dto.ProductResponse;
 import com.regulus.reactor.service.ProductService;
 import org.springframework.http.HttpStatus;
@@ -24,7 +23,7 @@ public class ProductController {
 
     @GetMapping()
     public Mono<ResponseEntity<List<ProductResponse>>> getAllProducts() {
-        return productService.findAll()
+        return productService.getAllProduct()
                 .map(productResponses ->
                         new ResponseEntity<>(productResponses, HttpStatus.OK))
                 .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -32,32 +31,31 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public Mono<ResponseEntity<ProductResponse>> getProductById(@PathVariable String id) {
-        return productService.findById(id).map(productResponse ->
-            new ResponseEntity<>(productResponse, HttpStatus.OK))
+        return productService.getProductById(id).map(productResponse ->
+                        new ResponseEntity<>(productResponse, HttpStatus.OK))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/add")
-    public Mono<ResponseEntity<ProductResponse>> saveProduct( @RequestBody ProductRequestAdd request) {
-        return productService.save(request)
+    public Mono<ResponseEntity<ProductResponse>> saveProduct(@RequestBody ProductRequest request) {
+        return productService.saveProduct(request)
                 .map(productResponse -> ResponseEntity.created(URI.create("/api/product/".concat(productResponse.getId()))).body(productResponse))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
 
     @PutMapping("/update/{id}")
-    public Mono<ResponseEntity<ProductResponse>> updateProduct(@RequestBody ProductRequestUpdate request, @PathVariable String id) {
-        return productService.update(request, id)
+    public Mono<ResponseEntity<ProductResponse>> updateProduct(@RequestBody ProductRequest request, @PathVariable String id) {
+        return productService.updateProduct(request, id)
                 .map(productResponse -> ResponseEntity.created(URI.create("/api/product/".concat(productResponse.getId()))).body(productResponse))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/remove/{id}")
     public Mono<ResponseEntity<Void>> removeProduct(@PathVariable String id) {
-        return productService.findById(id).flatMap(productResponse -> {
-            return productService.delete(id).then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)));
-        }).defaultIfEmpty(new ResponseEntity<Void>(HttpStatus.NOT_FOUND));
-
+        return productService.getProductById(id).flatMap(productResponse ->
+             productService.removeProduct(id).then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)))
+        ).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
 
     }

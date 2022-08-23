@@ -12,4 +12,5 @@ public interface ProductRepository extends ReactiveMongoRepository<Product, Stri
 
     @Query("{ 'name': ?0 }")
     Mono<Product> findByNameProduct(String name);
+
 }
